@@ -20,8 +20,14 @@ def GetFile(path):
         for f in files:
             file = os.path.join(root, f)
             if file.endswith('.php') == True:
-                file_dict[file] = f
-                file_list.append(file)
+                try:
+                    with open(file,"r",encoding="utf-8") as fff:
+                        if '''if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr''' in fff.readlines()[1]:
+                            file_dict[file] = f
+                            file_list.append(file)
+                except:
+                    pass
+
             else:
                 copyfile(file, ('output/' + file).replace(os.getcwd(),''))
     return file_list
@@ -38,19 +44,19 @@ def UploadFile(file):
         'Sec-Fetch-Mode': 'navigate',
         'Accept-Encoding': 'gzip, deflate',
         'Accept-Language': 'zh-CN,zh;q=0.9',
-        'Cookie': '替换成你的cokie'
+        'Cookie': 'PHPSESSID='
 
     }
-    proxy = {'http': '127.0.0.1:8080', 'https': '127.0.0.1:8080'}
+    proxy = {'http': '127.0.0.1:7890', 'https': '127.0.0.1:7890'}
 
     try:
-        filename_res = requests.get('https://easytoyou.eu/decoder/ic10php56', headers=headers,timeout=25,verify=False)
+        filename_res = requests.get('https://easytoyou.eu/decoder/ic10php56', headers=headers,timeout=10,verify=False)
         filename = re.findall(r"file\" name=\"(.+?)\"", filename_res.text)[0]
         res = requests.post('https://easytoyou.eu/decoder/ic10php56',headers=headers ,files={filename: open(file, 'rb')},data={'submit':'Decode'},timeout=25,verify=False)
         if res.status_code == 200 and re.findall(r"Download link: <a href='", res.text) != []:
             print(file + '上传成功')
             download = re.findall(r"Download link: <a href='(.+?)'>",res.text)[0]
-            down_res = requests.get(download,headers=headers, timeout=25)
+            down_res = requests.get(download,headers=headers, timeout=10)
             if res.status_code==403:
                 print('下载出错')
                 with open('error.txt', 'a') as f:
@@ -73,7 +79,7 @@ def UploadFile(file):
 
 
 
-AllFile=GetFile('tq/')
+AllFile=GetFile('www/')
 a=0
 b=len(AllFile)
 for file in AllFile:
